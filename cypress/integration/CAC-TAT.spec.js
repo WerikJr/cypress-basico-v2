@@ -47,10 +47,12 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('.error').should('not.be.visible')
     })
 
-    it('campo telefone continua vazio quando preencho com valor não númerico', function(){
-        cy.get('#phone')
-            .type('abcdefghij')
-            .should('have.value', '')
+    Cypress._.times(5, function(){
+        it('campo telefone continua vazio quando preencho com valor não númerico', function(){
+            cy.get('#phone')
+                .type('abcdefghij')
+                .should('have.value', '')
+        })
     })
 
     it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function(){
@@ -198,6 +200,52 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     
         cy.contains('Talking About Testing').should('be.visible')
     })
+
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+        cy.get('.success')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Mensagem enviada com sucesso.')
+          .invoke('hide')
+          .should('not.be.visible')
+        cy.get('.error')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Valide os campos obrigatórios!')
+          .invoke('hide')
+          .should('not.be.visible')
+      })
+
+      it('preenche a area de texto usando o comando invoke', function(){
+        const longtext = Cypress._.repeat('1234567890', 20)
+
+        cy.get('#open-text-area')
+            .invoke('val',longtext)
+            .should('have.value', longtext)
+      })
+
+      it('faz uma requisição HTTP', function(){
+        cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html')
+        .should(function(response){
+            const {status, statusText, body} = response
+            expect(status).to.equal(200)
+            expect(statusText).to.equal('OK')
+            expect(body).to.include('CAC TAT')
+        })
+      })
+
+      it('Encontrando o gato escondido', function(){
+        cy.get('#cat')
+            .invoke('show')
+            .should('be.visible')
+        
+        cy.get('#title')
+            .invoke('text', 'Mudei o titulo')
+        cy.get('#subtitle')
+            .invoke('text', 'Mudei o subtitulo')
+      })
    
   })
 
